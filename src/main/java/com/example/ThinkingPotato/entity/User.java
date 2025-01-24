@@ -2,6 +2,7 @@ package com.example.ThinkingPotato.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Entity
 @Table(name = "users")
@@ -29,6 +30,9 @@ public class User {
 
     @Column(nullable = false)
     private String role;
+
+    @Column(name = "color_code", nullable = false, length = 7)  // 🔹 Store color as a HEX code
+    private String colorCode;
 
     // Getter and Setter for all fields
     public Long getId() {
@@ -92,6 +96,19 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public User() {
+        this.colorCode = generateRandomColor();
+    }
+
+    private String generateRandomColor() {
+        String[] colors = {"#ff6666", "#66b3ff", "#99ff99", "#ffcc99", "#c299ff"};
+        return colors[new Random().nextInt(colors.length)];
+    }
+
+    // Getters & Setters
+    public String getColorCode() { return colorCode; }
+    public void setColorCode(String colorCode) { this.colorCode = colorCode; }
 }
 
 

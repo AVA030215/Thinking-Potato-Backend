@@ -1,5 +1,6 @@
 package com.example.ThinkingPotato.controller;
 
+import com.example.ThinkingPotato.dto.UserResponse;
 import com.example.ThinkingPotato.entity.TeacherStudent;
 import com.example.ThinkingPotato.entity.User;
 import com.example.ThinkingPotato.service.TeacherStudentService;
@@ -99,30 +100,26 @@ public class UserController {
     // New Endpoint: Add Student to Teacher
     @PostMapping("/teacher/add-student")
     public ResponseEntity<?> addStudentToTeacher(@RequestBody Map<String, String> request) {
-        String teacherEmail = request.get("teacherEmail"); // Dynamically passed from frontend
+        String teacherEmail = request.get("teacherEmail");
         String studentEmail = request.get("studentEmail");
 
-        if (teacherEmail == studentEmail) {
-            return ResponseEntity.badRequest().body("Error: teacherEmail and studentEmail has to be different!");
-        }
         if (teacherEmail == null || studentEmail == null) {
-            if(teacherEmail == null && studentEmail == null) {
-                return ResponseEntity.badRequest().body("Error: teacherEmail and studentEmail cannot be null");
-            }
-            else if(teacherEmail == null){
-                return ResponseEntity.status(400).body("Teacher problem");
-            }
-            else {
-                return ResponseEntity.status(400).body("Student problem");
-            }
+            return ResponseEntity.status(400).body("Error: Both teacherEmail and studentEmail are required.");
+        }
 
+        if (teacherEmail.equals(studentEmail)) {
+            return ResponseEntity.badRequest().body("Error: Teacher cannot add themselves as a student!");
         }
 
         try {
-            TeacherStudent teacherStudent = teacherStudentService.addStudentToTeacher(teacherEmail, studentEmail);
+            if (userService.isStudentAlreadyAdded(teacherEmail, studentEmail)) {
+                return ResponseEntity.status(400).body("Error: This student is already assigned to you!");
+            }
+
+            userService.addStudentToTeacher(teacherEmail, studentEmail);
             return ResponseEntity.ok("Student added successfully!");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Error: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Internal server error: " + e.getMessage());
@@ -153,8 +150,8 @@ public class UserController {
         }
 
         try {
-            List<User> students = teacherStudentService.getStudentsForTeacherDetails(teacherEmail);
-            return ResponseEntity.ok(students);
+            List<UserResponse> students = userService.getStudentsForTeacherDetails(teacherEmail);
+            return ResponseEntity.ok(students);  // ✅ Return new UserResponse DTO with color
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
@@ -162,6 +159,7 @@ public class UserController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
+
 
     @DeleteMapping("/teacher/remove-student")
     public ResponseEntity<?> removeStudentFromTeacher(@RequestBody Map<String, String> request) {
@@ -182,6 +180,9 @@ public class UserController {
             return ResponseEntity.status(500).body("Internal server error: " + e.getMessage());
         }
     }
+
+
+
 
 
 }
