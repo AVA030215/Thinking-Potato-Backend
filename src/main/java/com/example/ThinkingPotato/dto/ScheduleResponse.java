@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalTime;
 
 public class ScheduleResponse {
+    private Long id;
     private String studentName;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
@@ -17,8 +18,9 @@ public class ScheduleResponse {
     private String address;
     private String studentColor;
 
-    public ScheduleResponse(String studentName, LocalTime startTime, LocalTime endTime,
+    public ScheduleResponse(Long id, String studentName, LocalTime startTime, LocalTime endTime,
                             String lessonType, String address, String studentColor) {
+        this.id = id;
         this.studentName = studentName;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -28,6 +30,9 @@ public class ScheduleResponse {
     }
 
     // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
     public String getStudentName() { return studentName; }
     public void setStudentName(String studentName) { this.studentName = studentName; }
 
@@ -45,4 +50,6 @@ public class ScheduleResponse {
 
     public String getStudentColor() { return studentColor; }
     public void setStudentColor(String studentColor) { this.studentColor = studentColor; }
+
+
 }

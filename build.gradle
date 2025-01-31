@@ -42,3 +42,9 @@ tasks.named('test') {
 tasks.withType(Test){
 	enabled =false
 }
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-parameters"
+}
+
+
