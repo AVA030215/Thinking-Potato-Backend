@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Optional;
 
 
 @Service
@@ -131,6 +132,11 @@ public class UserService {
 
         // 🔹 Ensure we delete only ONE instance (avoiding accidental multiple deletions)
         teacherStudentRepository.delete(mappings.get(0));
+    }
+
+    // ✅ Get student_id from email
+    public Optional<Long> getStudentIdByEmail(String email) {
+        return userRepository.findIdByEmail(email);
     }
 
 }

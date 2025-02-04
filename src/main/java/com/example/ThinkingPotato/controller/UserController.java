@@ -10,9 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 
 @CrossOrigin
 @RestController
@@ -159,6 +163,16 @@ public class UserController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
+
+    @GetMapping("/student-id/{email}")
+    public ResponseEntity<Map<String, Long>> getStudentIdByEmail(@PathVariable String email) {
+        String decodedEmail = URLDecoder.decode(email, StandardCharsets.UTF_8);
+        Optional<Long> studentIdOptional = userService.getStudentIdByEmail(decodedEmail);
+
+        return studentIdOptional.map(studentId -> ResponseEntity.ok(Map.of("studentId", studentId)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 
 
     @DeleteMapping("/teacher/remove-student")
