@@ -50,24 +50,34 @@ public class UserController {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
 
-        try {
-            User user = userService.getUserByEmail(email);
+        System.out.println("🔹 Received Login Request - Email: " + email + ", Password: " + password);
 
+        try {
+            if (email == null || password == null) {
+                System.out.println("❌ Email or Password is missing in the request!");
+                return ResponseEntity.status(400).body("Email and password are required.");
+            }
+
+            User user = userService.getUserByEmail(email);
             if (user != null && user.getPassword().equals(password)) {
-                // Check role to differentiate user types
-                if ("teacher".equals(user.getRole())) {
-                    return ResponseEntity.ok(Map.of("message", "Login successful", "role", "teacher"));
-                } else {
-                    return ResponseEntity.ok(Map.of("message", "Login successful", "role", "student"));
-                }
+                System.out.println("✅ Login Successful for " + email);
+
+                // 🔹 FIX: Now we include "email" in the response
+                return ResponseEntity.ok(Map.of(
+                        "message", "Login successful",
+                        "role", user.getRole(),
+                        "email", user.getEmail() // <-- ✅ This is the missing field
+                ));
             } else {
+                System.out.println("❌ Invalid Login Attempt for " + email);
                 return ResponseEntity.status(401).body("Invalid email or password!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("❌ Internal Server Error: " + e.getMessage());
             return ResponseEntity.status(500).body("Internal server error: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/{email}")
     public ResponseEntity<?> getUserByEmail(@PathVariable(name = "email") String email) {
