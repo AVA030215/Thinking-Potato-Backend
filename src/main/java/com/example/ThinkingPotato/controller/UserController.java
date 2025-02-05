@@ -31,6 +31,39 @@ public class UserController {
     @Autowired
     private TeacherStudentService teacherStudentService;
 
+    @PutMapping("/{email}/profile-photo")
+    public ResponseEntity<?> updateProfilePhoto(
+            @PathVariable String email,
+    @RequestBody Map<String,String> request) {
+        String newPhotoUrl = request.get("profilePhoto");
+        if(newPhotoUrl == null || newPhotoUrl.isEmpty()) {
+            return ResponseEntity.badRequest().body("Profile Photo Url is required");
+        }
+
+        User updatedUser = userService.updateProfilePhoto(email, newPhotoUrl);
+        return ResponseEntity.ok(Map.of("profilePhoto", updatedUser.getProfilePhoto()));
+    }
+
+    @PutMapping("/update/{email}")
+    public ResponseEntity<?> updateUser(@PathVariable String email, @RequestBody User updatedUser) {
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        // ✅ Update only allowed fields (not email)
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setMathLevel(updatedUser.getMathLevel());
+
+        // ✅ Save user without checking duplicate email
+        userService.updateUser(user);
+
+        return ResponseEntity.ok(user);
+    }
+
+
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         try {

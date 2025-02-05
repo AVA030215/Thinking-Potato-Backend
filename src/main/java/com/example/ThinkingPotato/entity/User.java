@@ -34,11 +34,13 @@ public class User {
     @Column(name = "color_code", nullable = false, length = 7)  // 🔹 Store color as a HEX code
     private String colorCode;
 
+    @Column(name = "profile_photo", nullable = true, length = 255)
+    private String profilePhoto = "/public/img/profile/justpotato.png";
+
     // Getter and Setter for all fields
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -46,7 +48,6 @@ public class User {
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -54,7 +55,6 @@ public class User {
     public String getLastName() {
         return lastName;
     }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -62,7 +62,6 @@ public class User {
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -70,7 +69,6 @@ public class User {
     public String getPassword() {
         return password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -78,27 +76,23 @@ public class User {
     public String getMathLevel() {
         return mathLevel;
     }
-
     public void setMathLevel(String mathLevel) {
         this.mathLevel = mathLevel;
     }
 
-    public String getRole() { return role; }
-
-
     public void setRole(String role){ this.role = role;}
-
+    public String getRole() {return role;}
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     public User() {
         this.colorCode = generateRandomColor();
+        this.profilePhoto = "/public/img/profile/thinking-potato.png";
     }
 
     private String generateRandomColor() {
@@ -106,9 +100,11 @@ public class User {
         return colors[new Random().nextInt(colors.length)];
     }
 
-    // Getters & Setters
     public String getColorCode() { return colorCode; }
     public void setColorCode(String colorCode) { this.colorCode = colorCode; }
+
+    public String getProfilePhoto() { return profilePhoto; }
+    public void setProfilePhoto(String profilePhoto) { this.profilePhoto = profilePhoto; }
 }
 
 

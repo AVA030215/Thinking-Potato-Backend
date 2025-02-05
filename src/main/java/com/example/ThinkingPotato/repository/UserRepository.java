@@ -19,6 +19,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u.id FROM User u WHERE u.email = :email")
     Optional<Long> findIdByEmail(@Param("email") String email);
 
+    @Modifying
+    @Query("UPDATE User u SET u.profilePhoto = :profilePhoto WHERE u.email = :email")
+    void updateProfilePhoto(@Param("email") String email, @Param("profilePhoto") String profilePhoto);
+
 }
 
 

@@ -29,6 +29,10 @@ public class UserService {
         if (emailExists(user.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
+
+        if (user.getProfilePhoto() == null || user.getProfilePhoto().isEmpty()) {
+            user.setProfilePhoto("/pubilc/img/profile/justpotato.png");
+        }
         return userRepository.save(user);
     }
 
@@ -137,6 +141,21 @@ public class UserService {
     // ✅ Get student_id from email
     public Optional<Long> getStudentIdByEmail(String email) {
         return userRepository.findIdByEmail(email);
+    }
+
+    //profile photo
+    public User updateProfilePhoto(String email, String newPhotoUrl) {
+        User user = userRepository.findByEmail(email);
+        if(user == null){
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+
+        user.setProfilePhoto(newPhotoUrl);
+        return userRepository.save(user);
+    }
+
+    public User updateUser(User user) {
+        return userRepository.save(user); // ✅ No email duplication check
     }
 
 }
