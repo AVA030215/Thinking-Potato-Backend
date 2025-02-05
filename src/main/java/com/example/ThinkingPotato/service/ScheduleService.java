@@ -45,7 +45,7 @@ public class ScheduleService {
         return scheduleRepository.save(schedule);
     }
 
-    // ✅ Get weekly schedule
+    // ✅ Get weekly schedule - teacher
     public Map<String, List<ScheduleResponse>> getWeeklySchedule(String teacherEmail) {
         User teacher = userRepository.findOptionalByEmail(teacherEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Teacher not found with email: " + teacherEmail));
@@ -56,6 +56,45 @@ public class ScheduleService {
 
         // Fetch all schedules for the teacher (including past repeating schedules)
         List<Schedule> schedules = scheduleRepository.findByTeacher(teacher)
+                .stream()
+                .filter(schedule ->
+                        // Include schedules that either start this week OR are repeating into this week
+                        (schedule.getStartDate().isBefore(endOfWeek) && schedule.getEndDate().isAfter(startOfWeek))
+                )
+                .collect(Collectors.toList());
+
+        // Map to store grouped schedule responses
+        Map<String, List<ScheduleResponse>> response = new LinkedHashMap<>();
+
+        for (Schedule schedule : schedules) {
+            LocalDate scheduleDate = schedule.getStartDate();
+
+            // Iterate over repeating occurrences
+            while (!scheduleDate.isAfter(schedule.getEndDate()) && scheduleDate.isBefore(endOfWeek.plusDays(1))) {
+                if (!scheduleDate.isBefore(startOfWeek)) {
+                    response
+                            .computeIfAbsent(scheduleDate.toString(), k -> new ArrayList<>())
+                            .add(convertToResponse(schedule));
+                }
+                scheduleDate = scheduleDate.plusWeeks(schedule.getRepetition()); // ✅ Increment by repetition interval
+            }
+        }
+
+        return response;
+    }
+
+
+    // ✅ Get weekly schedule - student
+    public Map<String, List<ScheduleResponse>> getStudentWeeklySchedule(String studentEmail) {
+        User student = userRepository.findOptionalByEmail(studentEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found with email: " + studentEmail));
+
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+
+        // Fetch all schedules for the student (including repeating ones)
+        List<Schedule> schedules = scheduleRepository.findByStudent(student)
                 .stream()
                 .filter(schedule ->
                         // Include schedules that either start this week OR are repeating into this week

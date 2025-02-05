@@ -92,8 +92,7 @@ public class ScheduleController {
         }
     }
 
-    // ✅ Get weekly schedule
-// ✅ Get weekly schedule
+    // ✅ Get weekly schedule - teacher
     @GetMapping("/weekly/{teacherEmail}")
     public ResponseEntity<Map<String, List<ScheduleResponse>>> getWeeklySchedule(@PathVariable("teacherEmail") String teacherEmail) {
         try {
@@ -103,6 +102,18 @@ public class ScheduleController {
             return ResponseEntity.status(500).body(null); // Avoid returning a plain error string
         }
     }
+
+    // ✅ Get weekly schedule - student
+    @GetMapping("/student/{studentEmail}")
+    public ResponseEntity<Map<String, List<ScheduleResponse>>> getStudentSchedule(@PathVariable("studentEmail") String studentEmail) {
+        try {
+            Map<String, List<ScheduleResponse>> studentSchedule = scheduleService.getStudentWeeklySchedule(studentEmail);
+            return ResponseEntity.ok(studentSchedule);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null); // Avoid returning a plain error string
+        }
+    }
+
 
 
 
