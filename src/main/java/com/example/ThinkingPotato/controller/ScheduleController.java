@@ -23,36 +23,39 @@ public class ScheduleController {
 
     @DeleteMapping("/delete/{scheduleId}")
     public ResponseEntity<?> deleteSchedule(
-            @PathVariable("scheduleId") String scheduleId, // ✅ name 명시적으로 추가
+            @PathVariable("scheduleId") String scheduleId,
             @RequestParam(name = "future", required = false, defaultValue = "false") boolean future,
-            @RequestParam(name = "date", required = false) String date) {
+            @RequestParam(name = "date", required = false) String date
+    ) {
+        if (scheduleId == null || scheduleId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Schedule ID is required.");
+        }
+
+        Long id;
         try {
-            if (scheduleId == null || scheduleId.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Schedule ID is required.");
-            }
+            id = Long.parseLong(scheduleId.trim());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Invalid schedule ID format: " + scheduleId);
+        }
 
-            Long id;
-            try {
-                id = Long.parseLong(scheduleId.trim()); // ✅ String → Long 변환
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body("Invalid schedule ID format: " + scheduleId);
-            }
+        // 🔹 If `date` is missing, return an error instead of trying to parse it
+        if (!future && (date == null || date.trim().isEmpty())) {
+            return ResponseEntity.badRequest().body("Missing date parameter for single occurrence deletion.");
+        }
 
+        try {
             if (future) {
                 scheduleService.deleteAllOccurrences(id);
                 return ResponseEntity.ok("All future occurrences deleted successfully!");
-            } else if (date != null) {
+            } else {
                 LocalDate occurrenceDate = LocalDate.parse(date);
                 scheduleService.deleteSingleOccurrence(id, occurrenceDate);
                 return ResponseEntity.ok("Single occurrence deleted successfully!");
-            } else {
-                return ResponseEntity.badRequest().body("Missing date parameter for single occurrence deletion.");
             }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
-
 
 
     @PutMapping("/update/{scheduleId}")
@@ -104,6 +107,8 @@ public class ScheduleController {
 
 
 }
+
+
 
 
 
