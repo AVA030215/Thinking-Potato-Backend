@@ -111,6 +111,43 @@ public class UserController {
         }
     }
 
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String currentPassword = request.get("currentPassword");
+
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        // ✅ Verify current password before allowing a change
+        if (!user.getPassword().equals(currentPassword)) {
+            return ResponseEntity.status(401).body("Incorrect password");
+        }
+
+        return ResponseEntity.ok("Password verified");
+    }
+
+    @PutMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        user.setPassword(newPassword); // ✅ Update password
+        userService.updateUser(user); // ✅ Save updated user
+
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+
+
+
 
     @GetMapping("/{email}")
     public ResponseEntity<?> getUserByEmail(@PathVariable(name = "email") String email) {
